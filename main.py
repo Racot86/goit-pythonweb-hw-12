@@ -8,18 +8,15 @@ from src.database.db import engine
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
+async def lifespan_app(_: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    yield  # тут FastAPI запускається
-
-    # Shutdown (можна додати логіку тут)
-    # print("Shutting down...")
+    yield
 
 
-app = FastAPI(title="Contacts API", lifespan=lifespan)
+
+app = FastAPI(title="Contacts API", lifespan=lifespan_app)
 
 
 app.include_router(contacts.router, prefix="/contacts", tags=["Contacts"])
