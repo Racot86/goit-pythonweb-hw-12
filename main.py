@@ -7,6 +7,7 @@ from src.database.models import Base
 from src.database.db import engine
 
 from src.api import auth
+from src.api import users
 
 
 @asynccontextmanager
@@ -23,6 +24,7 @@ app = FastAPI(title="Contacts API", lifespan=lifespan_app)
 
 app.include_router(contacts.router, prefix="/contacts", tags=["Contacts"])
 app.include_router(auth.router)
+app.include_router(users.router)
 
 # ⬇️ Запуск напряму
 if __name__ == "__main__":
