@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import  EmailStr
 
 class Settings(BaseSettings):
     DB_HOST: str = "localhost"
@@ -6,6 +7,15 @@ class Settings(BaseSettings):
     DB_USER: str = "test_user"
     DB_PASS: str = "test_password"
     DB_NAME: str = "test_db"
+
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
 
     @property
     def database_url(self) -> str:
