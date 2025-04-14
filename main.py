@@ -9,6 +9,10 @@ from src.database.db import engine
 from src.api import auth
 from src.api import users
 
+from src.utils.limiter import limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
+
 
 @asynccontextmanager
 async def lifespan_app(_: FastAPI):
@@ -21,6 +25,9 @@ async def lifespan_app(_: FastAPI):
 
 app = FastAPI(title="Contacts API", lifespan=lifespan_app)
 
+# 🔸 Підключення limiter до FastAPI
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(contacts.router, prefix="/contacts", tags=["Contacts"])
 app.include_router(auth.router)
