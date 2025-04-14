@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base
 
 from sqlalchemy import Boolean
 from sqlalchemy.orm import relationship
-from src.database.db import Base
+
 
 Base = declarative_base()
 
@@ -17,10 +17,10 @@ class Contact(Base):
     phone = Column(String, nullable=False)
     birthday = Column(Date, nullable=False)
     additional_info = Column(String, nullable=True)
-    # 🔑 Додаємо зовнішній ключ до users.id
+
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # 🔁 Встановлюємо зворотний зв'язок
+
     owner = relationship("User", back_populates="contacts")
 
 class User(Base):

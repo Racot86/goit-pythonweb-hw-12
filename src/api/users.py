@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import Request
 from src.database.models import User
 from src.schemas import UserResponse
 from src.dependencies.auth import get_current_user
-from src.utils.limiter import limiter  # імпортуємо готовий limiter
+from src.utils.limiter import limiter
 
-from fastapi import UploadFile, File, Depends, APIRouter, HTTPException
+from fastapi import UploadFile, File, Depends, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 from src.services.cloudinary_service import upload_avatar
