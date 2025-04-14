@@ -5,7 +5,7 @@ from typing import List
 from src.schemas import ContactRead, ContactCreate, ContactUpdate
 from src.services import contacts as service
 from src.database.db import get_db
-
+from src.schemas import UserResponse
 router = APIRouter()
 
 @router.get("/", response_model=List[ContactRead])
@@ -50,3 +50,10 @@ async def search_contacts(query: str = Query(...), db: AsyncSession = Depends(ge
 @router.get("/birthdays/upcoming", response_model=List[ContactRead])
 async def get_upcoming_birthdays(db: AsyncSession = Depends(get_db)):
     return await service.upcoming_birthdays(db)
+
+from src.dependencies.auth import get_current_user
+from src.database.models import User
+
+@router.get("/me", response_model=UserResponse)
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
