@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool
     MAIL_SSL_TLS: bool
 
+    CLOUDINARY_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
+
     @property
     def database_url(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
