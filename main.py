@@ -13,6 +13,7 @@ from src.utils.limiter import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan_app(_: FastAPI):
@@ -24,6 +25,14 @@ async def lifespan_app(_: FastAPI):
 
 
 app = FastAPI(title="Contacts API", lifespan=lifespan_app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 🔸 Підключення limiter до FastAPI
 app.state.limiter = limiter
