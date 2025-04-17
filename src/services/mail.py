@@ -60,3 +60,19 @@ def decode_email_token(token: str) -> Optional[str]:
         return None
     except jwt.JWTError:
         return None
+
+async def send_password_reset_email(email: EmailStr, username: str, token: str):
+    reset_link = f"http://localhost:8000/auth/password-reset-confirm?token={token}"
+    html = f"""
+        <p>Hi {username},</p>
+        <p>Use the link below to reset your password (valid 30 minutes):</p>
+        <p><a href="{reset_link}">{reset_link}</a></p>
+    """
+    message = MessageSchema(
+        subject="Password reset",
+        recipients=[email],
+        body=html,
+        subtype="html",
+    )
+    fm = FastMail(conf)
+    await fm.send_message(message)

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy.orm import Session
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.schemas import UserCreate, LoginModel, TokenModel
+from src.schemas import UserCreate, TokenModel
 from src.database.db import get_db
 from src.database.models import User
 from src.services.auth import get_password_hash, verify_password, create_access_token
@@ -13,6 +13,9 @@ from src.services.mail import create_email_token, send_verification_email, decod
 from src.services.cache import CachedUser
 
 from src.database.models import RoleEnum
+
+from src.schemas import PasswordResetRequest, PasswordResetConfirm
+from src.services.password_reset import request_reset, confirm_reset
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -97,5 +100,19 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     ).save()
 
     return {"access_token": token, "token_type": "bearer"}
+
+
+
+@router.post("/password-reset-request", status_code=status.HTTP_202_ACCEPTED)
+async def password_reset_request(body: PasswordResetRequest,
+                                 db: AsyncSession = Depends(get_db)):
+    await request_reset(body.email, db)
+    return {"detail": "If the e‑mail exists, a reset link was sent"}
+
+@router.post("/password-reset-confirm")
+async def password_reset_confirm(body: PasswordResetConfirm,
+                                 db: AsyncSession = Depends(get_db)):
+    await confirm_reset(str(body.token), body.new_password, db)
+    return {"detail": "Password reset successful"}
 
 

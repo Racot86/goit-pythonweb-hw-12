@@ -4,6 +4,9 @@ from typing import Optional
 
 from enum import Enum
 
+from uuid import UUID
+
+
 class RoleEnum(str, Enum):
     user = "user"
     admin = "admin"
@@ -60,3 +63,10 @@ class TokenModel(BaseModel):
 class LoginModel(BaseModel):
     email: EmailStr
     password: str
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: UUID
+    new_password: str
