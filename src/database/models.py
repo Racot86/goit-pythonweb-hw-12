@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum, DateTime
 from sqlalchemy.orm import declarative_base
 
 from sqlalchemy import Boolean
@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 
 from enum import Enum as PyEnum
 
+from uuid import UUID
+from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 Base = declarative_base()
 
@@ -42,3 +45,15 @@ class User(Base):
     role = Column(Enum(RoleEnum), default=RoleEnum.user, nullable=False)
 
     contacts = relationship("Contact", back_populates="owner")
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    token = Column(PG_UUID(as_uuid=True), unique=True, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False, nullable=False)
+
+    user = relationship("User")
