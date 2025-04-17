@@ -1,6 +1,7 @@
 import redis.asyncio as redis
 from pydantic import BaseModel
 from src.conf.config import settings
+from src.database.models import RoleEnum
 
 redis_client = redis.Redis(
     host=settings.REDIS_HOST,
@@ -17,6 +18,10 @@ class CachedUser(BaseModel):        # what we actually store
     email: str
     is_verified: bool
     avatar: str | None = None
+    role: RoleEnum
+
+    class Config:
+        from_attributes = True
 
     @classmethod
     async def get(cls, email: str):

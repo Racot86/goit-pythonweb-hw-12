@@ -15,6 +15,7 @@ from slowapi import _rate_limit_exceeded_handler
 
 from fastapi.middleware.cors import CORSMiddleware
 
+
 @asynccontextmanager
 async def lifespan_app(_: FastAPI):
     async with engine.begin() as conn:

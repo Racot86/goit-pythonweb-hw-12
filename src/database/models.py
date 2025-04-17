@@ -1,11 +1,17 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Enum
 from sqlalchemy.orm import declarative_base
 
 from sqlalchemy import Boolean
 from sqlalchemy.orm import relationship
 
+from enum import Enum as PyEnum
+
 
 Base = declarative_base()
+
+class RoleEnum(PyEnum):
+    user = "user"
+    admin = "admin"
 
 class Contact(Base):
     __tablename__ = "contacts"
@@ -32,5 +38,7 @@ class User(Base):
     password = Column(String, nullable=False)
     is_verified = Column(Boolean, default=False)
     avatar = Column(String, nullable=True)
+
+    role = Column(Enum(RoleEnum), default=RoleEnum.user, nullable=False)
 
     contacts = relationship("Contact", back_populates="owner")

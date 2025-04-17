@@ -46,11 +46,12 @@ async def get_current_user(
         raise credentials_exception
 
     await CachedUser(
-        id=user.id,
-        username=user.username,
-        email=user.email,
-        is_verified=user.is_verified,
-        avatar=user.avatar,
+        id = user.id,
+        username = user.username,
+        email = user.email,
+        is_verified = user.is_verified,
+        avatar = user.avatar,
+        role = user.role,  # <- NEW
     ).save()
 
     return user

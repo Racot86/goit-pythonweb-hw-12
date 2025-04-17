@@ -12,6 +12,8 @@ from src.services.mail import create_email_token, send_verification_email, decod
 
 from src.services.cache import CachedUser
 
+from src.database.models import RoleEnum
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -32,7 +34,8 @@ async def signup(user: UserCreate, request: Request, db: AsyncSession = Depends(
         username=user.username,
         email=user.email,
         password=hashed_password,
-        is_verified=False
+        is_verified=False,
+        role = RoleEnum.user
     )
 
     db.add(new_user)
@@ -90,6 +93,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         email=db_user.email,
         is_verified=db_user.is_verified,
         avatar=db_user.avatar,
+        role=db_user.role,
     ).save()
 
     return {"access_token": token, "token_type": "bearer"}
