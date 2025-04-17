@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 from src.services.cloudinary_service import upload_avatar
 
+from src.services.cache import CachedUser
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("/me", response_model=UserResponse)
@@ -27,4 +29,7 @@ async def upload_user_avatar(
     db.add(current_user)
     await db.commit()
     await db.refresh(current_user)
+
+    await CachedUser.invalidate(current_user.email)
+
     return current_user

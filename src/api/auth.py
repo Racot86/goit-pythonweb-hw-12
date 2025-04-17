@@ -10,6 +10,8 @@ from src.database.models import User
 from src.services.auth import get_password_hash, verify_password, create_access_token
 from src.services.mail import create_email_token, send_verification_email, decode_email_token
 
+from src.services.cache import CachedUser
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -61,6 +63,9 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
 
     user.is_verified = True
     await db.commit()
+
+    await CachedUser.invalidate(user.email)
+
     return {"message": "Email verified successfully."}
 
 
@@ -77,4 +82,16 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         raise HTTPException(status_code=403, detail="Email is not verified")
 
     token = create_access_token({"sub": db_user.email})
+
+    # 🔸 cache the safe subset
+    await CachedUser(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        is_verified=db_user.is_verified,
+        avatar=db_user.avatar,
+    ).save()
+
     return {"access_token": token, "token_type": "bearer"}
+
+
