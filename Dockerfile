@@ -25,7 +25,7 @@ EXPOSE 8000
 CMD ["bash","-lc","\
   DB_HOST=$(python -c \"import os,urllib.parse as u; print(u.urlparse(os.environ['DATABASE_URL']).hostname)\") && \
   DB_PORT=$(python -c \"import os,urllib.parse as u; print(u.urlparse(os.environ['DATABASE_URL']).port)\") && \
-  echo \"⏳ waiting for $DB_HOST:$DB_PORT…\" && \
-  /usr/local/bin/wait-for-it.sh \"$DB_HOST:$DB_PORT\" --timeout=60 --strict -- \
+  echo \"⏳ waiting for $PGHOST:$PGPORT…\" && \
+  /usr/local/bin/wait-for-it.sh \"$PGHOST:$PGPORT\" --timeout=60 --strict -- \
   uvicorn main:app --host 0.0.0.0 --port ${PORT}\
 "]
