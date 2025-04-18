@@ -13,10 +13,14 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 Base = declarative_base()
 
 class RoleEnum(PyEnum):
+    """
+        Enumeration for user roles.
+        """
     user = "user"
     admin = "admin"
 
 class Contact(Base):
+
     __tablename__ = "contacts"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -33,6 +37,7 @@ class Contact(Base):
     owner = relationship("User", back_populates="contacts")
 
 class User(Base):
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -48,6 +53,7 @@ class User(Base):
 
 
 class PasswordResetToken(Base):
+
     __tablename__ = "password_reset_tokens"
 
     id = Column(Integer, primary_key=True)
