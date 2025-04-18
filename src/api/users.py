@@ -105,4 +105,4 @@ async def set_user_role(
     user.role = role
     await db.commit()
     await CachedUser.invalidate(user.email)
-    return {"detail": f"Role set to {role}"}
+    return {"detail": f"Role set to {role.value}"}
