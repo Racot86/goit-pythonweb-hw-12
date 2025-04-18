@@ -24,6 +24,15 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/signup", response_model=TokenModel)
 async def signup(user: UserCreate, request: Request, db: AsyncSession = Depends(get_db)):
+    """
+        Register a new user, hash their password, save to DB,
+        and send a verification email with a tokenized link.
+
+        :param user: UserCreate object containing registration details.
+        :param request: FastAPI request object (for future extensions).
+        :param db: Async SQLAlchemy session.
+        :return: JWT access token.
+        """
     stmt = select(User).where(User.email == user.email)
     result = await db.execute(stmt)
     existing_user = result.scalar_one_or_none()
@@ -57,6 +66,13 @@ async def signup(user: UserCreate, request: Request, db: AsyncSession = Depends(
 
 @router.get("/verify")
 async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+    """
+        Verify a user's email using a token from their inbox.
+
+        :param token: Email verification token from the email link.
+        :param db: Async SQLAlchemy session.
+        :return: Success message if email was verified.
+        """
     try:
         email = decode_email_token(token)
     except Exception:
@@ -79,6 +95,14 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenModel)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    """
+        Authenticate a user using email and password,
+        verify their email status, and return an access token.
+
+        :param form_data: OAuth2-compatible login form (username = email).
+        :param db: Async SQLAlchemy session.
+        :return: JWT access token if login is successful.
+        """
     stmt = select(User).where(User.email == form_data.username)
     result = await db.execute(stmt)
     db_user = result.scalar_one_or_none()
@@ -108,17 +132,38 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
 @router.post("/password-reset-request", status_code=status.HTTP_202_ACCEPTED)
 async def password_reset_request(body: PasswordResetRequest,
                                  db: AsyncSession = Depends(get_db)):
+    """
+        Trigger a password reset process for a user by email.
+        Sends a reset link if the email exists.
+
+        :param body: Request object with user's email.
+        :param db: Async SQLAlchemy session.
+        :return: Informational message regardless of email existence.
+        """
     await request_reset(body.email, db)
     return {"detail": "If the e‑mail exists, a reset link was sent"}
 
 @router.post("/password-reset-confirm")
 async def password_reset_confirm(body: PasswordResetConfirm,
                                  db: AsyncSession = Depends(get_db)):
+    """
+        Confirm a password reset using a valid token and set a new password.
+
+        :param body: Contains reset token and the new password.
+        :param db: Async SQLAlchemy session.
+        :return: Confirmation message if successful.
+        """
     await confirm_reset(str(body.token), body.new_password, db)
     return {"detail": "Password reset successful"}
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_token(payload: TokenRefreshRequest):
+    """
+    Refresh the access token using a valid refresh token.
+
+    :param payload: TokenRefreshRequest containing the refresh token.
+    :return: New access token if refresh token is valid.
+    """
     data = auth_service.verify_refresh_token(payload.refresh_token)
     if data is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")

@@ -46,6 +46,15 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.get("/me", response_model=UserResponse)
 @limiter.limit("5/minute")
 def read_current_user(request: Request, current_user: User = Depends(get_current_user)):
+    """
+        Retrieve the current authenticated user's data.
+
+        Rate-limited to 5 requests per minute.
+
+        :param request: FastAPI Request object (used by limiter).
+        :param current_user: User object from auth dependency.
+        :return: Current user data.
+        """
     return current_user
 
 @router.post("/avatar", response_model=UserResponse)
@@ -54,6 +63,14 @@ async def upload_user_avatar(
     current_user: User = Depends(admin_user_required),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+        Upload and set a new avatar image for the authenticated admin user.
+
+        :param file: Uploaded avatar image file.
+        :param current_user: Authenticated admin user (checked via admin_user_required).
+        :param db: Async SQLAlchemy session.
+        :return: Updated user with new avatar URL.
+        """
     avatar_url = await upload_avatar(file)
     current_user.avatar = avatar_url
     db.add(current_user)
@@ -71,6 +88,15 @@ async def set_user_role(
     _: User = Depends(admin_required),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+        Change the role of another user. Requires admin access.
+
+        :param user_id: ID of the user whose role is to be changed.
+        :param role: New role to assign (RoleEnum).
+        :param _: Current admin user (dependency).
+        :param db: Async SQLAlchemy session.
+        :return: Success message with the updated role.
+        """
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
