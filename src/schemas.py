@@ -70,3 +70,10 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirm(BaseModel):
     token: UUID
     new_password: str
+
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

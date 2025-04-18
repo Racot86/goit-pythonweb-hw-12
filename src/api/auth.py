@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.schemas import UserCreate, TokenModel
+from src.schemas import UserCreate, TokenModel, TokenResponse, TokenRefreshRequest
 from src.database.db import get_db
 from src.database.models import User
 from src.services.auth import get_password_hash, verify_password, create_access_token
@@ -16,6 +16,8 @@ from src.database.models import RoleEnum
 
 from src.schemas import PasswordResetRequest, PasswordResetConfirm
 from src.services.password_reset import request_reset, confirm_reset
+
+from src.services import auth as auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -115,4 +117,11 @@ async def password_reset_confirm(body: PasswordResetConfirm,
     await confirm_reset(str(body.token), body.new_password, db)
     return {"detail": "Password reset successful"}
 
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_token(payload: TokenRefreshRequest):
+    data = auth_service.verify_refresh_token(payload.refresh_token)
+    if data is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    access_token = auth_service.create_access_token({"sub": data.get("sub")})
+    return TokenResponse(access_token=access_token)
 
