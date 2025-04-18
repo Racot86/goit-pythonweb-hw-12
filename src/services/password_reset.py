@@ -16,7 +16,7 @@ async def request_reset(email: str, db: AsyncSession) -> None:
     result = await db.execute(select(User).where(User.email == email))
     user: User | None = result.scalar_one_or_none()
     if not user:
-        #  ⬇︎ Don't leak which e‑mails exist
+
         return
 
     token = uuid4()
@@ -46,13 +46,13 @@ async def confirm_reset(token: str, new_password: str, db: AsyncSession) -> None
     if not prt:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
-    # update user password
+
     await db.execute(
         update(User)
         .where(User.id == prt.user_id)
         .values(password=get_password_hash(new_password))
     )
-    # mark token used
+
     await db.execute(
         update(PasswordResetToken).where(
             PasswordResetToken.id == prt.id

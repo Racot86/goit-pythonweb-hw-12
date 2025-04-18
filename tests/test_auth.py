@@ -15,7 +15,7 @@ async def test_signup_success(mock_create_token, mock_send_email, mock_create_ac
     mock_db = AsyncMock(spec=AsyncSession)
     new_user = UserCreate(username="testuser", email="test@example.com", password="strongpassword")
 
-    # 🔥 FIX: повертаємо значення без async
+
     mock_result = MagicMock()
     mock_result.scalar_one_or_none.return_value = None
     mock_db.execute.return_value = mock_result

@@ -10,7 +10,7 @@ from src.database.models import PasswordResetToken
 from src.database.db import get_db
 from src.services.auth import get_password_hash
 
-# --- Test database setup ---
+
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(
     DATABASE_URL,
@@ -38,7 +38,7 @@ def init_db():
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
-        # seed a verified user
+
         async with TestingSessionLocal() as session:
             hashed = get_password_hash(test_user["password"])
             user = User(
@@ -46,7 +46,7 @@ def init_db():
                 email=test_user["email"],
                 password=hashed,
             )
-            # mark as verified so login is allowed
+
             user.is_verified = True
             session.add(user)
             await session.commit()
@@ -69,7 +69,7 @@ def client():
             pass
     cache_mod.redis_client = DummyRedisClient()
 
-    # Stub out email service
+
     import src.services.mail as mail_mod
     mail_mod.send_password_reset_email = lambda email, token: None
 

@@ -13,7 +13,7 @@ async def test_get_contacts():
         email="john@example.com", phone="123", birthday="1990-01-01"
     )
 
-    # ❗ scalars() НЕ await, тому — MagicMock, а не AsyncMock
+
     mock_scalars = MagicMock()
     mock_scalars.all.return_value = [mock_contact]
 

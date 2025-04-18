@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy
 from sqlalchemy.ext.asyncio import create_async_engine
 
-# 🚀 in‑memory SQLite for tests
+
 DBB_URL = "sqlite+aiosqlite:///:memory:"
 
 @pytest.mark.asyncio
