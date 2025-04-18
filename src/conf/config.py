@@ -1,12 +1,22 @@
 from pathlib import Path
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # .../goit-pythonweb-hw-12
 
 class Settings(BaseSettings):
     DATABASE_URL: str
 
-    # поля, необов’язкові для локальних міграцій
+    # ————————————————————————————————————————————————————————————
+    # Make sure SQLAlchemy picks up asyncpg rather than psycopg2
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _ensure_asyncpg_prefix(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        return v
+
+    # optional mail, cloudinary, redis…
     MAIL_USERNAME: str | None = None
     MAIL_PASSWORD: str | None = None
     MAIL_FROM: str | None = None
@@ -24,10 +34,8 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_USER_TTL: int = 900
 
-    # ⬇︎  Вкладений Config!
     class Config:
-        env_file = BASE_DIR / ".env"   # абсолютний шлях
+        env_file = BASE_DIR / ".env"
         env_file_encoding = "utf-8"
-
 
 settings = Settings()
